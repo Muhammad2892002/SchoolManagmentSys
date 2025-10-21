@@ -1,0 +1,71 @@
+﻿@model Infrastructure.DTOs.StudentDTO
+<head>
+</head>
+<body>
+
+    <form method="post" asp-action="UpdateStd">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    First Name
+                    <input asp-for=FirstName  class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    Last Name
+                    <input asp-for=LastName  class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    Social Number
+                    <input type="text"  asp-for=NationalId class="form-control" maxlength="10" minlength="10" pattern="\d{10}" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    Gender
+                    <select  asp-for=Gender class="form-select">
+                        <option value="true">Male</option>
+                        <option value="false">Female</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    Birth Place
+                    <select asp-for=Governorate class="form-select" asp-items="@(new SelectList(ViewBag.Governorates, "Id", "Name"))">
+                        <option value="null">Select a place</option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    Birth Date
+                    <input  asp-for=BirthDate class="form-control" type="date" />
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-4">
+                  <input class="btn btn-outline-info" type="submit" />
+
+                    <a class="btn btn-outline-danger">Cancel</a>
+
+                </div>
+
+                <div class="col-md-4">
+                   
+                    <input asp-for=Id class="form-control" hidden/>
+
+                </div>
+            </div>
+
+
+        </div>
+    </form>
+  
+
+
+</body>

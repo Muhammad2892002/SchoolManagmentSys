@@ -91,5 +91,76 @@ namespace UI.Controllers
 
 
         }
+
+        public async Task <IActionResult> Update(long id) {
+            HttpClient client = new HttpClient();
+            var response = await client.GetAsync("https://localhost:7205/api/students/search?id="+id);
+            var responseGovernorate = await client.GetAsync("https://localhost:7205/api/governorate/getallgovernorate");
+            var governorates = JsonConvert.DeserializeObject<List<GovernorateDTO>>(await responseGovernorate.Content.ReadAsStringAsync());
+
+            var std=JsonConvert.DeserializeObject<StudentDTO>( await response.Content.ReadAsStringAsync());
+            if (std == null)
+            {
+
+
+                return RedirectToAction("Index");
+
+
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+
+
+              
+                ViewBag.Governorates = governorates;
+                return View(std);
+
+
+            }
+            else {
+
+                return RedirectToAction("Index");
+            }
+
+
+
+
+            }
+
+        [HttpPost("UpdateStd")]
+        public async Task<IActionResult> UpdateStd(StudentDTO studentDTO) {
+            HttpClient client = new HttpClient();
+            var studentJson=JsonConvert.SerializeObject(studentDTO);
+            var response = await client.PutAsync("https://localhost:7205/api/students/UpdateStd", new StringContent(studentJson,Encoding.UTF8,"application/json"));
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return RedirectToAction("Index");
+
+
+            }
+            else {
+                return RedirectToAction("Index");
+            
+            
+            
+            }
+
+
+
+
+
+
+
+        }
+
+
+        public async Task<IActionResult> Delete(long Id) {
+            HttpClient client = new HttpClient();
+            // var response = client.DeleteAsync("https://localhost:7205/api/students/Delete/");
+            var response = await client.DeleteAsync("https://localhost:7205/api/students/Delete?id="+Id);
+
+            return RedirectToAction("Index");
+        
+        }
     }
 }

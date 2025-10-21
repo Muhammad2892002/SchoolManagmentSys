@@ -1,30 +1,21 @@
-﻿
-@model List<Infrastructure.DTOs.StudentDTO> 
+﻿@model List<Infrastructure.DTOs.SubjectDTO>
 <html>
 <head>
     <style>
         #icons {
-         
-          font-size:20px;
+            font-size: 20px;
             color: #0a58ca;
-           
-            
-            
         }
-        #icons:hover{
-        
-        color:orangered;
-        font-size:30px;
-        
-        
-        }
-        button{
-          
-           
 
+            #icons:hover {
+                color: orangered;
+                font-size: 30px;
+            }
+
+        button {
             color: #0a58ca;
             background-color: white;
-            border-color:white;
+            border-color: white;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-bxK7u...etc" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -44,47 +35,32 @@
 
 </head>
 <body>
-    <a asp-action="Add" id="icons"><i id="icons" class="fa-solid fa-user-plus"></i>Add New Student</a>
+    <a asp-action="Add" id="icons"><i id="icons" class="fa-solid fa-user-plus"></i>Add New Subjects</a>
     <table id="example" class="display">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Birth Date</th>
-                <th>Birth Place</th>
-                <th>Gender</th>
-                <th>National Id</th>
-                <th>Create Date</th>
-                <th>Update Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var student in Model)
+            @foreach (var subject in Model)
             {
-                 <tr>
-                    <td>@student.Id</td>
-                <td>@student.FirstName   @student.LastName</td>
-                <td>@student.BirthDate</td>
-                <td>@student.GovernorateName</td>
-                <td>@student.GenderName</td>
-                <td>@student.NationalId</td>
-                <td>@student.CreateDate</td>
-                <td>@student.UpdateDate</td>
-                <td>
-                        <a  asp-action="Update" asp-route-id="@student.Id" ><i id="icons" class="fa-solid fa-pen-to-square"></i></a>
-                        <button class="btn"  asp-action="Index" onclick="Delete(@student.Id,'@student.FirstName @student.LastName')"><i id="icons" class="fa-solid fa-trash"></i></button>
-                </td>
-            </tr>
-            
-            
+                <tr>
+                    <td>@subject.Id</td>
+                    <td>@subject.Name</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@subject.Id"><i id="icons" class="fa-solid fa-pen-to-square"></i></a>
+                        <button class="btn" asp-action="Index" onclick="Delete(@subject.Id,'@subject.Name')">
+                            <i id="icons" class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
             }
-           
-           
-           
-           
-        </tfoot>
+        </tbody>
     </table>
+
     <script>
             new DataTable('#example', {
             layout: {
@@ -97,19 +73,19 @@
     <script>
         function Delete(id,name){
            if( confirm("are you sure Do you want to delete  "+name+"?")){
-               window.location.href='Students/Delete/'+id;
-           
-           
-           
-           
+                window.location.href='Subjects/Delete/'+id;
+
+
+
+
            }
-        
-        
-        
-        
+
+
+
+
         }
     </script>
-  
+
 </body>
 
 </html>
