@@ -13,32 +13,39 @@ namespace API.Controllers
     [ApiController]
     public class StudentSubjectController : ControllerBase
     {
-        public static void Get() { 
-           
-            
-        
-        
+    
+        private readonly IStudentSubjectRepository _studentSubjectRepository;
+        public StudentSubjectController(IStudentSubjectRepository studentRepository) {
+            _studentSubjectRepository = studentRepository;
         
         }
-        private readonly IStudentSubjectRepository _studentSubjectRepository;
 
         [HttpGet("getallmarkstostds")]
         public IActionResult GetAllMarksToStd(long id)
         {
+            var result = _studentSubjectRepository
+                .Find(x => x.StudentId == id, x => x.Student, s => s.Subject)
+                 .Select(obj => new MarkDTO
+                    {
+                           StudentId = obj.StudentId,
+                            StdName = obj.Student.FirstName + " " + obj.Student.LastName,
+                            SubjectId = obj.SubjectId,
+                            SubjectName = obj.Subject.Name,
+                            MarkValue = obj.Student.Marks
+                            .Where(m => m.SubjectId == obj.SubjectId)
+                            .Select(m => m.Mark1)
+                            .FirstOrDefault()
+                             })
+                      .ToList();
 
-            var reuslt = (from obj in _studentSubjectRepository.Find(x => x.StudentId != 0, x => x.Student, s => s.Subject)
-                          where obj.StudentId==id
-                          select new MarkDTO { 
-                              StudentId = obj.StudentId,
-                              StdName=obj.Student.FirstName+" "+obj.Student.LastName,
-                              SubjectId=obj.SubjectId,
-                              SubjectName=obj.Subject.Name,
-                              MarkValue= CheckObj(obj)
-                          
-                          
-                          }).ToList();
 
-            var marksAsJson = JsonConvert.SerializeObject(reuslt, Formatting.None, new JsonSerializerSettings
+
+
+
+
+
+
+            var marksAsJson = JsonConvert.SerializeObject(result, Formatting.None, new JsonSerializerSettings
             {
 
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -47,25 +54,7 @@ namespace API.Controllers
            
 
         }
-        public static decimal? CheckObj(StudentSubject std) {
-            var result = std.Student.Marks.FirstOrDefault(x => x.SubjectId == std.StudentId);
-            if (result == null)
-            {
-                return 0;
-
-
-            }
-            else {
-                return result.Mark1;
-            
-            
-            }
-
-
-
-
-
-        }
+     
 
         
     }
