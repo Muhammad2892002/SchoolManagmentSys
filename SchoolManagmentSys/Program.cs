@@ -17,6 +17,8 @@ namespace SchoolManagmentSys
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
             builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
             builder.Services.AddScoped<IGovernorateRepository, GovernorateRepository>();
+            builder.Services.AddScoped<IMarkRepository, MarkRepository>();
+            builder.Services.AddScoped<IStudentSubjectRepository, StudentSubjectRepository>();
 
             var app = builder.Build();
 
