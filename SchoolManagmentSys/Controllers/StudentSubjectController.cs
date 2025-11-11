@@ -54,8 +54,94 @@ namespace API.Controllers
            
 
         }
-     
 
+
+
+        [HttpGet("GetAllMarksToSubjects")]
+        public IActionResult GetAllMarksToSubject(int id)
+        {
+            var result = _studentSubjectRepository
+                .Find(x => x.SubjectId == id, x => x.Student, s => s.Subject)
+                 .Select(obj => new MarkDTO
+                 {
+                     StudentId = obj.StudentId,
+                     StdName = obj.Student.FirstName + " " + obj.Student.LastName,
+                     SubjectId = obj.SubjectId,
+                     SubjectName = obj.Subject.Name,
+                     MarkValue = obj.Student.Marks
+                            .Where(m => m.SubjectId == obj.SubjectId)
+                            .Select(m => m.Mark1)
+                            .FirstOrDefault()??0
+                 })
+                      .ToList();
+
+
+
+
+
+
+
+
+            var marksAsJson = JsonConvert.SerializeObject(result, Formatting.None, new JsonSerializerSettings
+            {
+
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+            return Ok(marksAsJson);
+
+
+        }
+
+
+        [HttpGet("GetStdAndSub")]
+        public IActionResult GetStdAndSub(long stdId, int subId) {
+            var result = _studentSubjectRepository
+             .Find(x => x.StudentId == stdId && x.SubjectId == subId, x => x.Student, s => s.Subject)
+              .Select(obj => new EditMarkDTO
+              {
+                  StudentId = obj.StudentId,
+                  StdName = obj.Student.FirstName + " " + obj.Student.LastName,
+                  SubjectId = obj.SubjectId,
+                  SubjectName = obj.Subject.Name,
+                  OldMark = obj.Student.Marks
+                         .Where(m => m.SubjectId == obj.SubjectId)
+                         .Select(m => m.Mark1)
+                         .FirstOrDefault()
+              }).FirstOrDefault();
+            return Ok(result);
+                  
+
+
+
+
+
+        }
+
+
+        [HttpPost("AddStdAndSub")]
+        public IActionResult AddStdAndSub(AddSubjectToStdDTO addSubjectToStdDTO) { 
+            StudentSubject studentSubject=new StudentSubject();
+            foreach (var item in addSubjectToStdDTO.ChosenSub) {
+                studentSubject.StudentId = addSubjectToStdDTO.StdId;
+                studentSubject.SubjectId = item;
+                _studentSubjectRepository.Add(studentSubject);
+               
+                
+            
+            
+            }
+            return Ok("Success");
+            
         
+        
+        
+        
+        }
+
+
+
+
+
+
     }
 }

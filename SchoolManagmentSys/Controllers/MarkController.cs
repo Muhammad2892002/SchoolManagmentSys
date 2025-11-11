@@ -2,6 +2,7 @@
 using Infrastructure.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Repositories.IRepositoryFolder;
 
@@ -43,5 +44,41 @@ namespace API.Controllers
             return Ok(marksAsJson);
         
         }
+
+        [HttpPost("EditMark")]
+        public IActionResult EditMark(EditMarkDTO editMarkDTO)
+        {
+            Mark mark = new Mark();
+            mark=_markRepository.Find(x=>x.StudentId==editMarkDTO.StudentId && x.SubjectId==editMarkDTO.SubjectId).FirstOrDefault();
+            mark.Mark1 = editMarkDTO.NewMark;
+            _markRepository.Update(mark);
+
+            return Ok("Sucses");
+
+
+
+
+
+
+        }
+        [HttpPost("AddMark")]
+        public IActionResult AddMark(EditMarkDTO markDTO) {
+            Mark mark = new Mark();
+            mark.StudentId = markDTO.StudentId;
+            mark.SubjectId = markDTO.SubjectId;
+            
+           
+            mark.Mark1 = markDTO.OldMark;
+            _markRepository.Add(mark);
+            return Ok("Success");
+
+        
+        
+        
+        
+        }
+
+
+
     }
 }

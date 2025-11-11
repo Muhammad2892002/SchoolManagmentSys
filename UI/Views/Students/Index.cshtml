@@ -54,6 +54,7 @@
                 <th>Birth Place</th>
                 <th>Gender</th>
                 <th>National Id</th>
+                <th>Show Unrolled Subjects </th>
                 <th>Create Date</th>
                 <th>Update Date</th>
                 <th>Available Marks</th>
@@ -70,6 +71,7 @@
                 <td>@student.GovernorateName</td>
                 <td>@student.GenderName</td>
                 <td>@student.NationalId</td>
+                    <td><a asp-controller="Subjects" asp-action="GetAllUnrolledSubjects" asp-route-id="@student.Id"><i id="icons" class="fa-solid fa-book"></i></a></td>
                 <td>@student.CreateDate</td>
                 <td>@student.UpdateDate</td>
                     <td> <a asp-controller="Mark" asp-action="GetAllMarkToStd" asp-route-id="@student.Id" asp-action=""><i id="icons" class="fa-solid fa-folder"></i></a></td>

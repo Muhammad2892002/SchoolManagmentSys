@@ -83,6 +83,28 @@ namespace UI.Controllers
         }
 
 
+        public async Task<IActionResult> GetAllEnrolledStudents(int id) {
+            HttpClient client = new HttpClient();
+            var response = await client.GetAsync("https://localhost:7205/api/studentsubject/GetAllMarksToSubjects?id=" + id);
+            var stdAssubjects = JsonConvert.DeserializeObject<List<MarkDTO>>(await response.Content.ReadAsStringAsync());
+            ViewBag.SubjectName=stdAssubjects.FirstOrDefault()?.SubjectName;
+            return View(stdAssubjects);
+        
+        
+        
+        }
+
+
+        public async Task<IActionResult> GetAllUnrolledSubjects(long id) {
+            HttpClient client = new HttpClient();
+            var result = await client.GetAsync("https://localhost:7205/api/subjects/GetAllUnrolledSubjects?id=" + id);
+            var SubjectsAsList = JsonConvert.DeserializeObject<DisplayUnrolledSubDTO>(await result.Content.ReadAsStringAsync());
+            return View(SubjectsAsList);
+        
+        
+        }
+
+
         
 
 

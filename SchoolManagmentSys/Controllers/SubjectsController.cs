@@ -79,6 +79,26 @@ namespace API.Controllers
         }
 
 
-       
+        public IActionResult GetAllUnrolledSubjects(long id) {
+            var result = (from obj in _subjectRepository.Find(x => x.Id != 0, substd => substd.StudentSubjects)
+                          where !obj.StudentSubjects.Any(ss => ss.StudentId == id)
+                          select new SubjectDTO
+                          {
+                              Id = obj.Id,
+                              Name = obj.Name
+
+                          }).ToList();
+            DisplayUnrolledSubDTO displayUnrolledSubDTO = new DisplayUnrolledSubDTO();
+            displayUnrolledSubDTO.AllUnrolledSubs.AddRange(result);
+            displayUnrolledSubDTO.StdId = id;
+            return Ok(displayUnrolledSubDTO);
+        
+        
+        
+        }
+
+
+
+
     }
 }

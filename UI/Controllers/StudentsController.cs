@@ -8,6 +8,9 @@ namespace UI.Controllers
 {
     public class StudentsController : Controller
     {
+
+      private static  bool  IsFailed = false;
+        private static string? Errormassage;
         public async Task<IActionResult> Index()
         {
             List<StudentDTO> AllStudents = new List<StudentDTO>();
@@ -43,6 +46,7 @@ namespace UI.Controllers
 
         public async Task<IActionResult> Add()
         {
+           
             try
             {
                 HttpClient client = new HttpClient();
@@ -52,6 +56,8 @@ namespace UI.Controllers
 
                     var governorates = JsonConvert.DeserializeObject<List<GovernorateDTO>>(await response.Content.ReadAsStringAsync());
                     ViewBag.Governorates = governorates;
+                    ViewBag.IsFailed = IsFailed;
+                    ViewBag.Errormassage = Errormassage;
                     return View();
 
                 }
@@ -83,8 +89,19 @@ namespace UI.Controllers
 
             }
             else {
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
+                     var massage =response.Content.ReadAsStringAsync();
+                    var result =  massage.Result;
+                    IsFailed = true;
+                    Errormassage = result;
+
+                  
+                    return RedirectToAction("Add");
+
+
+                }
                 return RedirectToAction("Index");
-            
+
             }
            
 

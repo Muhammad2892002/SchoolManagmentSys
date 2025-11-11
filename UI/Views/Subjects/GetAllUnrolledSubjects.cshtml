@@ -1,4 +1,4 @@
-﻿@model List<Infrastructure.DTOs.SubjectDTO>
+﻿@model Infrastructure.DTOs.DisplayUnrolledSubDTO
 <html>
 <head>
     <style>
@@ -35,33 +35,39 @@
 
 </head>
 <body>
-    <a asp-action="Add" id="icons"><i id="icons" class="fa-solid fa-user-plus"></i>Add New Subjects</a>
+    <form method="post" asp-action="AddSubjectsToStd" asp-controller="StudentSubject">
+
+
+ <input name="stdId" value="@Model.StdId" hidden />
     <table id="example" class="display">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Show all students Enrolled</th>
+             
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var subject in Model)
+            @foreach (var subject in Model.AllUnrolledSubs)
             {
                 <tr>
                     <td>@subject.Id</td>
                     <td>@subject.Name</td>
-                    <td><a asp-action="GetAllEnrolledStudents" id="icons" asp-route-id="@subject.Id">Show students</a></td>
+                   
                     <td>
-                        <a asp-action="Edit" asp-route-id="@subject.Id"><i id="icons" class="fa-solid fa-pen-to-square"></i></a>
-                        <button class="btn" asp-action="Index" onclick="Delete(@subject.Id,'@subject.Name')">
-                            <i id="icons" class="fa-solid fa-trash"></i>
-                        </button>
+                    <input class="form-check" type="checkbox" name="selectedSubjects" value="@subject.Id" />
                     </td>
                 </tr>
             }
+
         </tbody>
     </table>
+    <div>
+        <button type="submit" class="btn btn-outline-info">Save</button>
+        <a class="btn btn-outline-danger">Cancel</a>
+    </div>
+    </form>
 
     <script>
             new DataTable('#example', {
@@ -72,21 +78,7 @@
             }
         });
     </script>
-    <script>
-        function Delete(id,name){
-           if( confirm("are you sure Do you want to delete  "+name+"?")){
-                window.location.href='Subjects/Delete/'+id;
 
-
-
-
-           }
-
-
-
-
-        }
-    </script>
 
 </body>
 

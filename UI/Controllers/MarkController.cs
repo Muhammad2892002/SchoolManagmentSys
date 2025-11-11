@@ -1,6 +1,7 @@
 ﻿using Infrastructure.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace UI.Controllers
 {
@@ -15,5 +16,35 @@ namespace UI.Controllers
 
             return View(ListOfMarks);
         }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> EditMarks(EditMarkDTO markdto)
+        {
+            HttpClient client = new HttpClient();
+            var markAsJson = JsonConvert.SerializeObject(markdto);
+            var response = await client.PostAsync("https://localhost:7205/api/mark/EditMark", new StringContent(markAsJson, Encoding.UTF8, "application/json"));
+            return RedirectToAction("Index", "Subjects");
+
+
+
+        }
+        [HttpPost]
+
+        public async Task<IActionResult> AddMarks(EditMarkDTO markDTO) {
+            HttpClient client = new HttpClient();
+            var markAsJson = JsonConvert.SerializeObject(markDTO);
+            var response = await client.PostAsync("https://localhost:7205/api/mark/AddMark", new StringContent(markAsJson, Encoding.UTF8, "application/json"));
+            return RedirectToAction("Index", "Subjects");
+
+
+
+
+        }
+
+
+
+
     }
 }

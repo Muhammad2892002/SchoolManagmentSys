@@ -64,31 +64,47 @@ namespace API.Controllers
 
         public IActionResult Add(StudentDTO studentDTO)
         {
-            Student student = new Student()
+            try
             {
-                FirstName = studentDTO.FirstName,
-                LastName = studentDTO.LastName,
-                BirthDate = studentDTO.BirthDate,
-                Gender = studentDTO.Gender,
-                Governorate = studentDTO.Governorate,
-                CreateDate = DateTime.Now,
-                UpdateDate = null,
-                NationalId = studentDTO.NationalId,
+                var studentExists = _studentRepository.Find(x => x.NationalId == studentDTO.NationalId).FirstOrDefault();
+                if (studentExists != null)
+                {
+
+
+                    return NotFound("Id Exist enter unique Id");
+                }
+                Student student = new Student()
+                {
+                    FirstName = studentDTO.FirstName,
+                    LastName = studentDTO.LastName,
+                    BirthDate = studentDTO.BirthDate,
+                    Gender = studentDTO.Gender,
+                    Governorate = studentDTO.Governorate,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = null,
+                    NationalId = studentDTO.NationalId,
 
 
 
-            };
-            _studentRepository.Add(student);
+                };
+                _studentRepository.Add(student);
 
-            if (ModelState.IsValid)
-            {
-                return Ok("Student Added Successfully");
+                if (ModelState.IsValid)
+                {
+                    return Ok("Student Added Successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to add student");
+                }
+
             }
-            else
-            {
-                return BadRequest("Failed to add student");
-            }
 
+
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
 
 
 

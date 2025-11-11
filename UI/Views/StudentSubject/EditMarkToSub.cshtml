@@ -1,0 +1,52 @@
+﻿
+@model Infrastructure.DTOs.EditMarkDTO;
+<form method="post" asp-controller="mark" asp-action="EditMarks">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                Student Id
+                <input value="@Model.StudentId" class="form-control" asp-for="@Model.StudentId" readonly />
+            </div>
+            <div class="col-md-4">
+                Student Name
+                <input value="@Model.StdName" class="form-control" asp-for="@Model.StdName" readonly />
+            </div>
+
+            <div class="col-md-4">
+                Subject Id
+                <input value="@Model.SubjectId" class="form-control" asp-for="@Model.SubjectId" readonly />
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                Subject Name
+                <input value="@Model.SubjectName" class="form-control" asp-for="@Model.SubjectName" readonly />
+            </div>
+            <div class="col-md-4">
+                Old grade
+                <input value="@Model.OldMark" class="form-control" asp-for="@Model.OldMark" readonly />
+            </div>
+
+            <div class="col-md-4">
+                New grade
+                <input class="form-control" asp-for="@Model.NewMark" />
+            </div>
+
+        </div>
+
+
+        <div class="row">
+            <div class="col-md-4">
+                <input class="btn btn-outline-info" type="submit" />
+                <a class="btn btn-outline-danger">Cancel</a>
+               
+            </div>
+           
+
+           
+
+        </div>
+    </div>
+</form>

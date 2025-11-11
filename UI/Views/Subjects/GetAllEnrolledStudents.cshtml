@@ -1,4 +1,4 @@
-﻿@model List<Infrastructure.DTOs.SubjectDTO>
+﻿@model List<Infrastructure.DTOs.MarkDTO>
 <html>
 <head>
     <style>
@@ -35,28 +35,35 @@
 
 </head>
 <body>
-    <a asp-action="Add" id="icons"><i id="icons" class="fa-solid fa-user-plus"></i>Add New Subjects</a>
+    <h1> Subject name :@ViewBag.SubjectName</h1>
+    <button onclick="enablemarkchange()" class="btn" id="icons">See grades</button>
     <table id="example" class="display">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Show all students Enrolled</th>
-                <th>Actions</th>
+                <th>Student id</th>
+                <th>Student name</th>
+                <th hidden id="thGrade">Grade</th>
+                <th hidden id="thActions">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var subject in Model)
+            @foreach (var stdsubs in Model)
             {
                 <tr>
-                    <td>@subject.Id</td>
-                    <td>@subject.Name</td>
-                    <td><a asp-action="GetAllEnrolledStudents" id="icons" asp-route-id="@subject.Id">Show students</a></td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@subject.Id"><i id="icons" class="fa-solid fa-pen-to-square"></i></a>
-                        <button class="btn" asp-action="Index" onclick="Delete(@subject.Id,'@subject.Name')">
-                            <i id="icons" class="fa-solid fa-trash"></i>
-                        </button>
+                    <td>@stdsubs.StudentId</td>
+                    <td>@stdsubs.StdName</td>
+                    <td hidden class="tdGrade">@stdsubs.MarkValue</td>
+                    <td hidden class="tdActions">
+                        @if (stdsubs.MarkValue > 0)
+                        {
+                            <a asp-controller="StudentSubject" asp-action="EditMarkToSub" asp-route-stdId="@stdsubs.StudentId" asp-route-subId="@stdsubs.SubjectId">ChangeGrade</a>
+                        }
+                        else if (stdsubs.MarkValue == 0)
+                        {
+                            <a asp-controller="StudentSubject" asp-action="AddMarkToSub" asp-route-stdId="@stdsubs.StudentId" asp-route-subId="@stdsubs.SubjectId">AddGrade</a>
+                            
+                        
+                        }
                     </td>
                 </tr>
             }
@@ -75,7 +82,7 @@
     <script>
         function Delete(id,name){
            if( confirm("are you sure Do you want to delete  "+name+"?")){
-                window.location.href='Subjects/Delete/'+id;
+               window.location.href='Students/Delete/'+id;
 
 
 
@@ -87,6 +94,25 @@
 
         }
     </script>
+
+    <script>
+        function enablemarkchange() {
+            // toggle headers (static)
+            var thGrade = document.getElementById("thGrade");
+            var thAction = document.getElementById("thActions");
+
+            var show = thGrade.hidden;
+
+            thGrade.hidden = !show;
+            thAction.hidden = !show;
+
+            // toggle all dynamic cells
+            document.querySelectorAll(".tdGrade").forEach(td => td.hidden = !show);
+            document.querySelectorAll(".tdActions").forEach(td => td.hidden = !show);
+        }
+    </script>
+
+
 
 </body>
 
