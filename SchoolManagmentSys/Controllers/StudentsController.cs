@@ -66,8 +66,8 @@ namespace API.Controllers
         {
             try
             {
-                var studentExists = _studentRepository.Find(x => x.NationalId == studentDTO.NationalId).FirstOrDefault();
-                if (studentExists != null)
+                var studentExists = _studentRepository.Find(x => x.NationalId == studentDTO.NationalId).Any();
+                if (studentExists == true)
                 {
 
 
@@ -172,6 +172,8 @@ namespace API.Controllers
             _studentRepository.Delete(student);
             return Ok();
         }
+
+       
 
     }
 }

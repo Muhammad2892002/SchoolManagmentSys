@@ -11,6 +11,7 @@ namespace UI.Controllers
 
       private static  bool  IsFailed = false;
         private static string? Errormassage;
+        private static StudentDTO _studentDTO = new StudentDTO();
         public async Task<IActionResult> Index()
         {
             List<StudentDTO> AllStudents = new List<StudentDTO>();
@@ -58,7 +59,7 @@ namespace UI.Controllers
                     ViewBag.Governorates = governorates;
                     ViewBag.IsFailed = IsFailed;
                     ViewBag.Errormassage = Errormassage;
-                    return View();
+                    return View(_studentDTO);
 
                 }
                 else
@@ -79,29 +80,51 @@ namespace UI.Controllers
         [HttpPost("AddStd")]
         public async Task <IActionResult> AddStd(StudentDTO studentDTO)
         {
-            HttpClient client = new HttpClient();
-            var jsonString = JsonConvert.SerializeObject(studentDTO); 
-            
-            var response = await client.PostAsync("https://localhost:7205/api/students/add", new StringContent(jsonString,Encoding.UTF8,"application/json"));
-            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            try
             {
-                return RedirectToAction("Index");
+                var age = DateTime.Now.Year - studentDTO.BirthDate.Year;
+                if (age>=19 || age<=5) {
 
-            }
-            else {
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound) {
-                     var massage =response.Content.ReadAsStringAsync();
-                    var result =  massage.Result;
+                    _studentDTO = studentDTO;
+                    Errormassage = "Please enter valid birth date ";
                     IsFailed = true;
-                    Errormassage = result;
-
-                  
                     return RedirectToAction("Add");
 
 
-                }
-                return RedirectToAction("Index");
 
+                }
+                HttpClient client = new HttpClient();
+                var jsonString = JsonConvert.SerializeObject(studentDTO);
+
+
+                var response = await client.PostAsync("https://localhost:7205/api/students/add", new StringContent(jsonString, Encoding.UTF8, "application/json"));
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    return RedirectToAction("Index");
+
+                }
+                else
+                {
+                    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    {
+                        var massage = response.Content.ReadAsStringAsync();
+                        var result = massage.Result;
+                        IsFailed = true;
+                        Errormassage = result;
+                        studentDTO.NationalId = 0;
+
+                        _studentDTO = studentDTO;
+                        return RedirectToAction("Add");
+
+
+                    }
+                    return RedirectToAction("Index");
+
+                }
+            }
+            catch (Exception ex) {
+
+                return RedirectToAction("Index");
             }
            
 
