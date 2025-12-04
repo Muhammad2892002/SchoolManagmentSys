@@ -2,6 +2,12 @@
 <head>
 </head>
 <body>
+    @if (ViewBag.IsFaild)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.msg
+    </div>
+    }
 
     <form method="post" asp-action="UpdateStd">
 

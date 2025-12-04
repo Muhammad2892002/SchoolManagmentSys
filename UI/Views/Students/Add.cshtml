@@ -2,7 +2,7 @@
 <head></head>
 <body>
 
-       @if (ViewBag.IsFailed)
+    @if (ViewBag.errorNumber > 0)
     {
         <div class="alert alert-danger">
             @ViewBag.Errormassage

@@ -3,13 +3,16 @@ using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using Infrastructure.DTOs;
 using System.Text;
+using System.Net;
 
 namespace UI.Controllers
 {
     public class StudentsController : Controller
     {
 
-      private static  bool  IsFailed = false;
+      private static  int  errorNumber = 0;
+        public static HttpStatusCode status=System.Net.HttpStatusCode.OK;
+      
         private static string? Errormassage;
         private static StudentDTO _studentDTO = new StudentDTO();
         public async Task<IActionResult> Index()
@@ -57,8 +60,9 @@ namespace UI.Controllers
 
                     var governorates = JsonConvert.DeserializeObject<List<GovernorateDTO>>(await response.Content.ReadAsStringAsync());
                     ViewBag.Governorates = governorates;
-                    ViewBag.IsFailed = IsFailed;
+                    ViewBag.errorNumber = errorNumber;
                     ViewBag.Errormassage = Errormassage;
+
                     return View(_studentDTO);
 
                 }
@@ -82,17 +86,7 @@ namespace UI.Controllers
         {
             try
             {
-                var age = DateTime.Now.Year - studentDTO.BirthDate.Year;
-                if (age>=19 || age<=5) {
-
-                    _studentDTO = studentDTO;
-                    Errormassage = "Please enter valid birth date ";
-                    IsFailed = true;
-                    return RedirectToAction("Add");
-
-
-
-                }
+              
                 HttpClient client = new HttpClient();
                 var jsonString = JsonConvert.SerializeObject(studentDTO);
 
@@ -100,6 +94,10 @@ namespace UI.Controllers
                 var response = await client.PostAsync("https://localhost:7205/api/students/add", new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
+                    errorNumber = 0;
+                    _studentDTO = null;
+                    Errormassage = null;
+                    
                     return RedirectToAction("Index");
 
                 }
@@ -107,11 +105,12 @@ namespace UI.Controllers
                 {
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
+                       
                         var massage = response.Content.ReadAsStringAsync();
                         var result = massage.Result;
-                        IsFailed = true;
+                        errorNumber = ModelState.Count;
                         Errormassage = result;
-                        studentDTO.NationalId = 0;
+                        
 
                         _studentDTO = studentDTO;
                         return RedirectToAction("Add");
@@ -149,9 +148,21 @@ namespace UI.Controllers
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                if (status == System.Net.HttpStatusCode.NotFound)
+                {
+                    ViewBag.IsFaild = true;
+                    ViewBag.msg = Errormassage;
+                    
+                }
+
+                else { 
+                
+                    ViewBag.IsFaild = false;
+                ViewBag.msg = Errormassage;
+                }
 
 
-              
+                
                 ViewBag.Governorates = governorates;
                 return View(std);
 
@@ -174,15 +185,28 @@ namespace UI.Controllers
             var response = await client.PutAsync("https://localhost:7205/api/students/UpdateStd", new StringContent(studentJson,Encoding.UTF8,"application/json"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                ViewBag.isFailed = false;
+                status = response.StatusCode;
                 return RedirectToAction("Index");
 
 
             }
-            else {
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+              
+                Errormassage=response.Content.ReadAsStringAsync().Result;
+                status = response.StatusCode;
+                return RedirectToAction("Update", new { id = studentDTO.Id });
+
+
+
+
+
+            }
+            else { 
+               
                 return RedirectToAction("Index");
-            
-            
-            
+
             }
 
 

@@ -9,7 +9,7 @@ public partial class Student
 
     public string FirstName { get; set; } = null!;
 
-    public int NationalId { get; set; }
+    public long NationalId { get; set; }
 
     public DateTime BirthDate { get; set; }
 

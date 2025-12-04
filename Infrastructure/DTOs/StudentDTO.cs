@@ -14,7 +14,7 @@ namespace Infrastructure.DTOs
         public string FirstName { get; set; } = null!;
         public string? GenderName { get; set; }
 
-        public int NationalId { get; set; }
+        public long NationalId { get; set; }
 
         public DateTime BirthDate { get; set; }
 
