@@ -2,12 +2,23 @@
 <head>
 </head>
 <body>
-    @if (ViewBag.IsFaild)
+    @if (ViewBag.errorNumbers > 0)
     {
+
         <div class="alert alert-danger">
-            @ViewBag.msg
-    </div>
+            @foreach (var error in ViewBag.ErrorDetails)
+            {
+                <div>*@error</div>
+                <br />
+
+
+            }
+        </div>
+
+
+
     }
+   
 
     <form method="post" asp-action="UpdateStd">
 

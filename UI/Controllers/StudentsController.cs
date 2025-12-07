@@ -4,17 +4,14 @@ using System.Text.Json.Serialization;
 using Infrastructure.DTOs;
 using System.Text;
 using System.Net;
+using Infrastructure.Service;
 
 namespace UI.Controllers
 {
     public class StudentsController : Controller
     {
 
-      private static  int  errorNumber = 0;
-        public static HttpStatusCode status=System.Net.HttpStatusCode.OK;
-      
-        private static string? Errormassage;
-        private static StudentDTO _studentDTO = new StudentDTO();
+   
         public async Task<IActionResult> Index()
         {
             List<StudentDTO> AllStudents = new List<StudentDTO>();
@@ -24,7 +21,9 @@ namespace UI.Controllers
                 var response = await client.GetAsync("https://localhost:7205/api/students/getallstudent");
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                     AllStudents=JsonConvert.DeserializeObject<List<StudentDTO>>(await response.Content.ReadAsStringAsync());
+                  
+
+                    AllStudents =JsonConvert.DeserializeObject<List<StudentDTO>>(await response.Content.ReadAsStringAsync());
                     return View(AllStudents);
 
 
@@ -60,10 +59,21 @@ namespace UI.Controllers
 
                     var governorates = JsonConvert.DeserializeObject<List<GovernorateDTO>>(await response.Content.ReadAsStringAsync());
                     ViewBag.Governorates = governorates;
-                    ViewBag.errorNumber = errorNumber;
-                    ViewBag.Errormassage = Errormassage;
+                 
+                 
+                    if (TempData["stdObjJson"] != null)
+                    {
+                        var errorDetails=JsonConvert.DeserializeObject<List<string>>(TempData["ErrorDetails"].ToString());
+                        ViewBag.ErrorDetails =  errorDetails;
+                        ViewBag.errorNumber = errorDetails.Count();
+                        var student=JsonConvert.DeserializeObject<StudentDTO>(TempData["stdObjJson"].ToString());
+                        return View(student);
 
-                    return View(_studentDTO);
+
+
+                    }
+
+                    return View();
 
                 }
                 else
@@ -94,10 +104,8 @@ namespace UI.Controllers
                 var response = await client.PostAsync("https://localhost:7205/api/students/add", new StringContent(jsonString, Encoding.UTF8, "application/json"));
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    errorNumber = 0;
-                    _studentDTO = null;
-                    Errormassage = null;
-                    
+                    TempData.Clear();
+
                     return RedirectToAction("Index");
 
                 }
@@ -106,13 +114,15 @@ namespace UI.Controllers
                     if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                     {
                        
-                        var massage = response.Content.ReadAsStringAsync();
-                        var result = massage.Result;
-                        errorNumber = ModelState.Count;
-                        Errormassage = result;
-                        
+                     
+                        TempData["ErrorDetails"] =  response.Content.ReadAsStringAsync().Result;
+                        TempData["stdObjJson"]=JsonConvert.SerializeObject(studentDTO);
 
-                        _studentDTO = studentDTO;
+
+
+
+
+                        //_studentDTO = studentDTO;
                         return RedirectToAction("Add");
 
 
@@ -132,13 +142,35 @@ namespace UI.Controllers
         }
 
         public async Task <IActionResult> Update(long id) {
-            HttpClient client = new HttpClient();
-            var response = await client.GetAsync("https://localhost:7205/api/students/search?id="+id);
+            
+              HttpClient client = new HttpClient();
+            var stddto = new StudentDTO();
+
+            //TempData["ErrorDetails"] = response.Content.ReadAsStringAsync().Result;
+            if (TempData["InvalidObj"] != null)
+            {
+                stddto = JsonConvert.DeserializeObject<StudentDTO>(TempData["InvalidObj"].ToString());
+                var errorDetails = JsonConvert.DeserializeObject<List<string>>(TempData["ErrorDetails"].ToString());
+                TempData["StatusCode"] = System.Net.HttpStatusCode.OK.ToString();
+                ViewBag.errorNumbers = errorDetails.Count();
+                ViewBag.ErrorDetails = errorDetails;
+
+
+            }
+            else {
+                var response = await client.GetAsync("https://localhost:7205/api/students/search?id="+id);
+                TempData["StatusCode"] = response.StatusCode.ToString();
+                
+                stddto =JsonConvert.DeserializeObject<StudentDTO>( await response.Content.ReadAsStringAsync());
+            
+            }
+              
+            
             var responseGovernorate = await client.GetAsync("https://localhost:7205/api/governorate/getallgovernorate");
             var governorates = JsonConvert.DeserializeObject<List<GovernorateDTO>>(await responseGovernorate.Content.ReadAsStringAsync());
 
-            var std=JsonConvert.DeserializeObject<StudentDTO>( await response.Content.ReadAsStringAsync());
-            if (std == null)
+            
+            if (stddto == null)
             {
 
 
@@ -146,25 +178,23 @@ namespace UI.Controllers
 
 
             }
-            else if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            else if (TempData["StatusCode"] == System.Net.HttpStatusCode.OK.ToString())
             {
-                if (status == System.Net.HttpStatusCode.NotFound)
-                {
-                    ViewBag.IsFaild = true;
-                    ViewBag.msg = Errormassage;
+                //if (status == System.Net.HttpStatusCode.NotFound)
+                //{
+               
                     
-                }
+                //}
 
-                else { 
+                //else { 
                 
-                    ViewBag.IsFaild = false;
-                ViewBag.msg = Errormassage;
-                }
+                  
+                //}
 
 
                 
                 ViewBag.Governorates = governorates;
-                return View(std);
+                return View(stddto);
 
 
             }
@@ -185,18 +215,21 @@ namespace UI.Controllers
             var response = await client.PutAsync("https://localhost:7205/api/students/UpdateStd", new StringContent(studentJson,Encoding.UTF8,"application/json"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                ViewBag.isFailed = false;
-                status = response.StatusCode;
+                TempData.Clear();
+
                 return RedirectToAction("Index");
 
 
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-              
-                Errormassage=response.Content.ReadAsStringAsync().Result;
-                status = response.StatusCode;
-                return RedirectToAction("Update", new { id = studentDTO.Id });
+                TempData["InvalidObj"]=JsonConvert.SerializeObject(studentDTO);
+                TempData["ErrorDetails"] = response.Content.ReadAsStringAsync().Result;
+
+
+
+
+                return RedirectToAction("Update");
 
 
 

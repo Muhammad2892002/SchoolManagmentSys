@@ -4,8 +4,15 @@
 
     @if (ViewBag.errorNumber > 0)
     {
+
         <div class="alert alert-danger">
-            @ViewBag.Errormassage
+            @foreach (var error in ViewBag.ErrorDetails)
+            {
+                <div>*@error</div>
+                <br />
+
+                
+            }
         </div>
         
     

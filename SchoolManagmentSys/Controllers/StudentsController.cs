@@ -64,7 +64,7 @@ namespace API.Controllers
 
         public IActionResult Add(StudentDTO studentDTO)
         {
-            List<Infrastructure.Service.ErrorCheck> errorChecks = new List<Infrastructure.Service.ErrorCheck>();
+            List<string> errorMsg = new List<string>();
 
 
 
@@ -74,16 +74,12 @@ namespace API.Controllers
                 var isTheSameNameExist = _studentRepository.Find(x => x.FirstName == studentDTO.FirstName && x.LastName == studentDTO.LastName).Any();
                 var age = DateTime.Now.Year - studentDTO.BirthDate.Year;
                 if (isTheSameNameExist) {
-                    ModelState.AddModelError("NameExists", "The Student Name is already exist");
-                    //errorChecks.Add(new Infrastructure.Service.ErrorCheck
-                    //{
-                    //    IsFailed = true,
-                    //    ErrorMessage = "The Student Name is already exist"
-                    //});
+
+                    errorMsg.Add("The Student Name is already exist");
 
 
 
-                    //return NotFound("The Student Name is already exist");
+                  
 
                 }
 
@@ -91,25 +87,14 @@ namespace API.Controllers
 
                 if (studentExists == true)
                 {
-                    ModelState.AddModelError("IdExists", "Id Exist enter unique Id");
-                    //errorChecks.Add(new Infrastructure.Service.ErrorCheck
-                    //{
-                    //    IsFailed = true,
-                    //    ErrorMessage = "Id Exist enter unique Id"
-                    //});
 
-
-                    //return NotFound("Id Exist enter unique Id");
+                    errorMsg.Add("Id Exist enter unique Id");
                 }
               
-                if (age > 19 || age <= 5)
+                if (age > 19 || age < 5)
                 {
-                    ModelState.AddModelError("AgeInvalid", "The student Age must be 5 to 19");
-                    //errorChecks.Add(new Infrastructure.Service.ErrorCheck
-                    //{
-                    //    IsFailed = true,
-                    //    ErrorMessage = "The student Age must be 5 to 19"
-                    //});
+
+                    errorMsg.Add("The student Age must be 5 to 19");
 
                     //return NotFound("The student must be 5 to 19 ");
 
@@ -118,9 +103,9 @@ namespace API.Controllers
 
 
                 }
-                if(ModelState.Count>0)
+                if(errorMsg.Count>0)
                 {
-                    return NotFound(ModelState);
+                    return NotFound(errorMsg);
                 }
                 Student student = new Student()
                 {
@@ -164,21 +149,30 @@ namespace API.Controllers
    
         public IActionResult UpdateStd([FromBody]StudentDTO studentDTO)
         {
+            List<string> errorMsg = new List<string>();
+            var age = DateTime.Now.Year - studentDTO.BirthDate.Year;
             var studentInDb = _studentRepository.Find(x=>x.Id==studentDTO.Id).FirstOrDefault();
             var findStd = _studentRepository.Find(x=>x.NationalId==studentDTO.NationalId &&(x.Id!=studentDTO.Id)).Any();
             var checkName = _studentRepository.Find(x => x.FirstName == studentDTO.FirstName && x.LastName == studentDTO.LastName && x.NationalId != studentInDb.NationalId).Any();
             
             if (studentInDb == null)
             {
-                return NotFound("Student not found");
+                errorMsg.Add("Student not found");
             }
             if (checkName) {
-                return NotFound("The Student Name is already exist");
+                errorMsg.Add("The Student Name is already exist");
 
             }
             if (findStd) {
-                return NotFound("Enter Unique Id");
+                errorMsg.Add("Enter Unique Id");
             
+            }
+            if (age < 5 || age > 19) {
+
+                errorMsg.Add("The student age must be 5 to 19.");
+            }
+            if (errorMsg.Count > 0) { 
+              return NotFound(errorMsg);
             }
             else
             {

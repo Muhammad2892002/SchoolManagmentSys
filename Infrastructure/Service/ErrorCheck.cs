@@ -8,7 +8,7 @@ namespace Infrastructure.Service
 {
     public class ErrorCheck
     {
-        public bool IsFailed { get; set; }
+       
         public string? ErrorMessage { get; set; }
     }
 }
