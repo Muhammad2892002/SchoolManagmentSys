@@ -32,11 +32,22 @@ namespace API.Controllers
             return Ok(subjectAsJson);
         }
 
-        public IActionResult Add(SubjectDTO subjectDTO) { 
-            Subject subject = new Subject() { 
-             Name= subjectDTO.Name};
-            _subjectRepository.Add(subject);
-            return Ok(subject);
+        public IActionResult Add(SubjectDTO subjectDTO) {
+            var subjectExist = _subjectRepository.Find(x=>x.Name.ToUpper().Contains(subjectDTO.Name.ToUpper())).Any();
+            if (subjectExist)
+            {
+                return Conflict("Subject Already Exist");
+
+            }
+            else
+            {
+                Subject subject = new Subject()
+                {
+                    Name = subjectDTO.Name
+                };
+                _subjectRepository.Add(subject);
+                return Ok("Subject added");
+            }
              
             
            
@@ -58,14 +69,24 @@ namespace API.Controllers
 
 
         public IActionResult Edit(SubjectDTO subjectDTO) {
-            Subject subject = new Subject()
+            var checkSub = _subjectRepository.Find(x=>x.Id!=subjectDTO.Id && x.Name.ToUpper().Contains(subjectDTO.Name.ToUpper())).
+                Any();
+            if (checkSub)
             {
-                Id= subjectDTO.Id,
-                Name= subjectDTO.Name,
+                return Conflict("Subject Already Exist");
 
-            };
-            _subjectRepository.Update(subject);
-            return Ok("Adding Successfully");
+            }
+            else
+            {
+                Subject subject = new Subject()
+                {
+                    Id = subjectDTO.Id,
+                    Name = subjectDTO.Name,
+
+                };
+                _subjectRepository.Update(subject);
+                return Ok("EditedSuccessfully");
+            }
         
         
         }

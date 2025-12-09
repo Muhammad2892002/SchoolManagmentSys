@@ -10,6 +10,7 @@ namespace UI.Controllers
 {
     public class StudentsController : Controller
     {
+        
 
    
         public async Task<IActionResult> Index()
@@ -21,7 +22,16 @@ namespace UI.Controllers
                 var response = await client.GetAsync("https://localhost:7205/api/students/getallstudent");
                 if (response.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                  
+
+                    if (TempData["msg"] != null)
+                    {
+                        ViewBag.Msg=TempData["msg"];
+
+                      
+                       
+                        TempData.Clear();
+                    }
+
 
                     AllStudents =JsonConvert.DeserializeObject<List<StudentDTO>>(await response.Content.ReadAsStringAsync());
                     return View(AllStudents);
@@ -255,6 +265,17 @@ namespace UI.Controllers
             HttpClient client = new HttpClient();
             // var response = client.DeleteAsync("https://localhost:7205/api/students/Delete/");
             var response = await client.DeleteAsync("https://localhost:7205/api/students/Delete?id="+Id);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK) {
+               
+                TempData["msg"]= await response.Content.ReadAsStringAsync();
+
+            }
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict) {
+              
+                TempData["msg"] = await response.Content.ReadAsStringAsync();
+
+
+            }
 
             return RedirectToAction("Index");
         

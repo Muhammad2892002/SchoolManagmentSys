@@ -13,11 +13,26 @@ namespace UI.Controllers
             HttpClient client = new HttpClient();
             var response = await client.GetAsync("https://localhost:7205/api/subjects/getallsubjects");
             var jsonAsList = JsonConvert.DeserializeObject<List<SubjectDTO>>(await response.Content.ReadAsStringAsync());
+          
+            if (TempData["SuccessMessage"]!=null) { 
+                ViewBag.Msg = TempData["SuccessMessage"];
+                TempData.Clear();
+
+
+            }
+        
+
             return View(jsonAsList);
         }
 
 
-        public IActionResult Add() { 
+        public IActionResult Add() {
+           
+            if (TempData["msg"] != null) {
+                ViewBag.Msg = TempData["msg"];
+                TempData.Clear();
+
+            }
             return View();
         
         
@@ -29,14 +44,16 @@ namespace UI.Controllers
             var response = await client.PostAsync("https://localhost:7205/api/subjects/Add", new StringContent(subjectAsJson, Encoding.UTF8, "application/json"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
+                TempData["SuccessMessage"] = "Subject Added Successfully";
                 return RedirectToAction("Index");
 
 
 
             }
             else {
+                TempData["msg"] = $"The Subject you Typed {subjectDTO.Name} is already exist please enter another subjectname";
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Add");
             
             }
         
@@ -45,9 +62,28 @@ namespace UI.Controllers
         }
         public async Task<IActionResult> Edit(int id) {
             HttpClient client = new HttpClient();
-            var response = await client.GetAsync("https://localhost:7205/api/subjects/FindSubject?id="+id);
-            var jsonAsList = JsonConvert.DeserializeObject<SubjectDTO>(await response.Content.ReadAsStringAsync());
-            return View(jsonAsList);
+            SubjectDTO stdDTO = new SubjectDTO();
+            //TempData["object"] = JsonConvert.SerializeObject(subjectDTO);
+            //TempData["SuccessMsg"] = response.Content.ReadAsStringAsync().Result;
+            if (TempData["object"] != null && TempData["Msg"] != null)
+            {
+                stdDTO=JsonConvert.DeserializeObject<SubjectDTO>(TempData["object"].ToString());
+                ViewBag.Msg = TempData["Msg"];
+                TempData.Clear();
+
+
+            }
+            else
+            {
+
+                var response = await client.GetAsync("https://localhost:7205/api/subjects/FindSubject?id=" + id);
+                stdDTO = JsonConvert.DeserializeObject<SubjectDTO>(await response.Content.ReadAsStringAsync());
+                ViewBag.Msg = TempData["Msg"];
+                TempData.Clear();
+            }
+            
+
+            return View(stdDTO);
 
 
         }
@@ -59,13 +95,14 @@ namespace UI.Controllers
             var response = await client.PutAsync("https://localhost:7205/api/subjects/Edit", new StringContent(subjectAsJson, Encoding.UTF8, "application/json"));
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-
+                TempData["Msg"]=response.Content.ReadAsStringAsync().Result;
+                
                 return RedirectToAction("Index");
             }
             else {
-
-
-                return RedirectToAction("Index");
+                TempData["object"]=JsonConvert.SerializeObject(subjectDTO);
+                TempData["Msg"] = response.Content.ReadAsStringAsync().Result;
+                return RedirectToAction("Edit");
             }
         
         

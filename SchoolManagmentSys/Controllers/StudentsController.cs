@@ -221,11 +221,26 @@ namespace API.Controllers
         public IActionResult Delete(long id)
         {
             var student = _studentRepository.Find(x => x.Id == id).FirstOrDefault();
-            if (student == null)
-                return NotFound();
+            bool hadEnrolledSub = _studentRepository.Find(x => x.Id==x.StudentSubjects.FirstOrDefault(ss=>ss.StudentId==student.Id).StudentId, x => x.StudentSubjects).Any();
 
-            _studentRepository.Delete(student);
-            return Ok();
+
+
+
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+            if (hadEnrolledSub)
+            {
+                return Conflict("Cannot delete student with enrolled subjects.");
+            }
+            else
+            {
+
+                _studentRepository.Delete(student);
+                return Ok("Student Deleted Successfully");
+            }
         }
 
        
