@@ -16,6 +16,8 @@ namespace UI.Controllers
           
             if (TempData["SuccessMessage"]!=null) { 
                 ViewBag.Msg = TempData["SuccessMessage"];
+
+
                 TempData.Clear();
 
 
